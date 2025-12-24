@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -10,17 +12,37 @@ dotenv.config();
 
 const app = express();
 
+// Lấy đường dẫn thư mục hiện tại (ES modules)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (_req, res) => {
-  res.json({ message: "Xin chào" });
-});
-
 // Gắn prefix /api/products cho tất cả các route liên quan đến sản phẩm
 app.use("/api/products", productRoutes);
+
+// Cấu hình serve static files cho môi trường production
+if (process.env.NODE_ENV === "production") {
+  // Đường dẫn đến thư mục build của frontend
+  const frontendDistPath = path.join(__dirname, "../frontend/dist");
+
+  // Serve các file tĩnh (CSS, JS, images, etc.)
+  app.use(express.static(frontendDistPath));
+
+  // Catch-all route: Trả về index.html cho mọi route không phải API
+  // Giúp React Router hoạt động chính xác trên server
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(frontendDistPath, "index.html"));
+  });
+} else {
+  // Route mặc định cho development
+  app.get("/", (_req, res) => {
+    res.json({ message: "Xin chào" });
+  });
+}
 
 // Hàm khởi tạo database - tạo bảng products nếu chưa tồn tại
 async function initDB() {
