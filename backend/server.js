@@ -79,10 +79,13 @@ async function initDB() {
 
     // Kiểm tra xem bảng có dữ liệu không, nếu trống thì tự động seed
     const productCount = await sql`
-      select count(*) as count from public.products
+      select count(*)::int as count from public.products
     `;
 
-    if (productCount[0].count === 0) {
+    // Chuyển đổi count sang số để so sánh chính xác (PostgreSQL có thể trả về string)
+    const count = Number(productCount[0]?.count || 0);
+
+    if (count === 0) {
       console.log("Bảng products đang trống, bắt đầu seed dữ liệu mẫu...");
       try {
         await seedProducts();
@@ -94,7 +97,7 @@ async function initDB() {
       }
     } else {
       console.log(
-        `Bảng products đã có ${productCount[0].count} sản phẩm, bỏ qua seed.`,
+        `Bảng products đã có ${count} sản phẩm, bỏ qua seed.`,
       );
     }
   } catch (error) {

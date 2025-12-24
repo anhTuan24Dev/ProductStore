@@ -1,4 +1,5 @@
 import { sql } from "../config/db.js";
+import seedProducts from "../seeds/products.js";
 
 // Lấy danh sách tất cả sản phẩm
 export const getProducts = async (_req, res) => {
@@ -131,5 +132,29 @@ export const deleteProduct = async (req, res) => {
     // Xử lý lỗi và trả về mã 500 Internal Server Error
     console.error("Lỗi khi xóa sản phẩm:", error);
     res.status(500).json({ error: "Lỗi server khi xóa sản phẩm" });
+  }
+};
+
+// Seed lại dữ liệu mẫu vào bảng products
+export const seedProductsData = async (_req, res) => {
+  try {
+    console.log("API: Bắt đầu seed dữ liệu sản phẩm...");
+    await seedProducts();
+
+    // Lấy lại danh sách sản phẩm sau khi seed
+    const products = await sql`
+      select *
+      from public.products
+      order by created_at desc
+    `;
+
+    res.status(200).json({
+      message: "Seed dữ liệu thành công",
+      count: products.length,
+      products,
+    });
+  } catch (error) {
+    console.error("Lỗi khi seed dữ liệu:", error);
+    res.status(500).json({ error: "Lỗi server khi seed dữ liệu" });
   }
 };
