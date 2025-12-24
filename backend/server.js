@@ -7,6 +7,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { sql } from "./config/db.js";
 import productRoutes from "./routes/productRoutes.js";
+import seedProducts from "./seeds/products.js";
 
 dotenv.config();
 
@@ -75,6 +76,27 @@ async function initDB() {
     `;
 
     console.log("Bảng products đã được khởi tạo thành công");
+
+    // Kiểm tra xem bảng có dữ liệu không, nếu trống thì tự động seed
+    const productCount = await sql`
+      select count(*) as count from public.products
+    `;
+
+    if (productCount[0].count === 0) {
+      console.log("Bảng products đang trống, bắt đầu seed dữ liệu mẫu...");
+      try {
+        await seedProducts();
+        console.log("✅ Đã seed dữ liệu mẫu thành công!");
+      } catch (seedError) {
+        // Log lỗi nhưng không crash server nếu seed thất bại
+        console.error("⚠️ Cảnh báo: Không thể seed dữ liệu mẫu:", seedError);
+        console.log("Server vẫn sẽ khởi động, nhưng bảng products sẽ trống.");
+      }
+    } else {
+      console.log(
+        `Bảng products đã có ${productCount[0].count} sản phẩm, bỏ qua seed.`,
+      );
+    }
   } catch (error) {
     console.error("Lỗi khi khởi tạo bảng products:", error);
     throw error;
