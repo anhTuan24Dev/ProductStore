@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import { Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
@@ -11,6 +12,7 @@ function App() {
         <Route element={<HomePage />} path="/" />
         <Route element={<ProductPage />} path="/product/:id" />
       </Routes>
+      <Toaster />
     </div>
   );
 }

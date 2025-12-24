@@ -1,7 +1,6 @@
 {
   "author": "",
   "dependencies": {
-    "@arcjet/node": "^1.0.0-beta.15",
     "@neondatabase/serverless": "^1.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
