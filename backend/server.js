@@ -34,7 +34,7 @@ if (process.env.NODE_ENV === "production") {
 
   // Catch-all route: Trả về index.html cho mọi route không phải API
   // Giúp React Router hoạt động chính xác trên server
-  app.get("*", (_req, res) => {
+  app.get(/.*/, (_req, res) => {
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 } else {
