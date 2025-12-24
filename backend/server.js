@@ -16,7 +16,19 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(helmet());
+// Cấu hình helmet với CSP cho phép load hình ảnh từ các domain bên ngoài
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"], // Cho phép load hình ảnh từ HTTPS
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"], // Cho phép inline styles cho Tailwind
+      },
+    },
+  }),
+);
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cors());
